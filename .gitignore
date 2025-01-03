@@ -1,0 +1,17 @@
+data/
+plots/
+work/
+.nextflow/
+.nextflow.log.*
+*.ipynb
+*.logs
+*.csv
+*.parquet
+*.json
+*.bed
+*.bam
+*.png
+*.gwf
+*.o
+*.stderr 
+*.stdout

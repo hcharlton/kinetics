@@ -1,0 +1,72 @@
+Dec-15 17:22:47.927 [main] DEBUG nextflow.cli.Launcher - Setting http proxy: ProxyConfig[protocol=http; host=proxy-default; port=3128]
+Dec-15 17:22:47.959 [main] DEBUG nextflow.cli.Launcher - Setting https proxy: ProxyConfig[protocol=https; host=proxy-default; port=3128]
+Dec-15 17:22:47.960 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf
+Dec-15 17:22:48.020 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 24.10.2
+Dec-15 17:22:48.040 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/chcharlton/.nextflow/plugins; core-plugins: nf-amazon@2.9.2,nf-azure@1.10.2,nf-cloudcache@0.4.2,nf-codecommit@0.2.2,nf-console@1.1.4,nf-google@1.15.2,nf-tower@1.9.3,nf-wave@1.7.4
+Dec-15 17:22:48.064 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Dec-15 17:22:48.066 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Dec-15 17:22:48.069 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Dec-15 17:22:48.081 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Dec-15 17:22:48.159 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Dec-15 17:22:48.175 [main] DEBUG nextflow.cli.CmdRun - Launching `main.nf` [modest_hodgkin] DSL2 - revision: ed973a3178
+Dec-15 17:22:48.177 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Dec-15 17:22:48.178 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Dec-15 17:22:48.232 [main] DEBUG nextflow.Session - Session UUID: 4891da65-65be-4b4e-b4ca-d9cf0d60b8d9
+Dec-15 17:22:48.348 [main] DEBUG nextflow.Session - Run name: modest_hodgkin
+Dec-15 17:22:48.349 [main] DEBUG nextflow.Session - Executor pool size: 64
+Dec-15 17:22:48.358 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Dec-15 17:22:48.365 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=192; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Dec-15 17:22:48.396 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 24.10.2 build 5932
+  Created: 27-11-2024 21:23 UTC (22:23 CEST)
+  System: Linux 5.14.0-427.35.1.el9_4.x86_64
+  Runtime: Groovy 4.0.23 on OpenJDK 64-Bit Server VM 17.0.10+7
+  Encoding: UTF-8 (UTF-8)
+  Process: 2989466@fe-open-01 [10.20.21.52]
+  CPUs: 64 - Mem: 503.4 GB (47.2 GB) - Swap: 24.4 GB (12.9 GB)
+Dec-15 17:22:48.421 [main] DEBUG nextflow.Session - Work-dir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work [fhgfs]
+Dec-15 17:22:48.423 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/bin
+Dec-15 17:22:48.435 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Dec-15 17:22:48.445 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Dec-15 17:22:48.473 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Dec-15 17:22:48.482 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 65; maxThreads: 1000
+Dec-15 17:22:48.536 [main] DEBUG nextflow.Session - Session start
+Dec-15 17:22:49.030 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Dec-15 17:22:49.046 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/chcharlton/.nextflow/secrets/store.json
+Dec-15 17:22:49.057 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@6c479fdf] - activable => nextflow.secret.LocalSecretsProvider@6c479fdf
+Dec-15 17:22:49.160 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-15 17:22:49.160 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-15 17:22:49.167 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Dec-15 17:22:49.174 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=64; memory=503.4 GB; capacity=64; pollInterval=100ms; dumpInterval=5m
+Dec-15 17:22:49.177 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Dec-15 17:22:49.277 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: simpleSquare
+Dec-15 17:22:49.278 [main] DEBUG nextflow.Session - Igniting dataflow network (2)
+Dec-15 17:22:49.279 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > simpleSquare
+Dec-15 17:22:49.280 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_68ae5eb49298ad4c: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/main.nf
+Dec-15 17:22:49.280 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Dec-15 17:22:49.281 [main] DEBUG nextflow.Session - Session await
+Dec-15 17:22:49.436 [Task submitter] INFO  nextflow.Session - [40/396789] Submitted process > simpleSquare (3)
+Dec-15 17:22:49.439 [Task submitter] INFO  nextflow.Session - [ae/281bac] Submitted process > simpleSquare (5)
+Dec-15 17:22:49.439 [pool-2-thread-1] INFO  nextflow.script.BaseScript - 9
+Dec-15 17:22:49.440 [pool-2-thread-2] INFO  nextflow.script.BaseScript - 25
+Dec-15 17:22:49.442 [Task submitter] INFO  nextflow.Session - [04/831dd1] Submitted process > simpleSquare (4)
+Dec-15 17:22:49.442 [pool-2-thread-3] INFO  nextflow.script.BaseScript - 16
+Dec-15 17:22:49.445 [pool-2-thread-4] INFO  nextflow.script.BaseScript - 4
+Dec-15 17:22:49.445 [Task submitter] INFO  nextflow.Session - [1c/cdb2e5] Submitted process > simpleSquare (2)
+Dec-15 17:22:49.447 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: simpleSquare (3); status: COMPLETED; exit: -; error: -; workDir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work/40/396789c49e40d642291307f6d34e66]
+Dec-15 17:22:49.448 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'TaskFinalizer' minSize=10; maxSize=192; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Dec-15 17:22:49.452 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 5; name: simpleSquare (5); status: COMPLETED; exit: -; error: -; workDir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work/ae/281bac54b093a21a5574838d1fd900]
+Dec-15 17:22:49.454 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 4; name: simpleSquare (4); status: COMPLETED; exit: -; error: -; workDir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work/04/831dd1f72e714c51688f703c70181c]
+Dec-15 17:22:49.543 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: simpleSquare (2); status: COMPLETED; exit: -; error: -; workDir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work/1c/cdb2e5de7992ba343e468b0793c8bd]
+Dec-15 17:22:49.884 [Task submitter] INFO  nextflow.Session - [d5/6e280e] Submitted process > simpleSquare (1)
+Dec-15 17:22:49.884 [pool-2-thread-5] INFO  nextflow.script.BaseScript - 1
+Dec-15 17:22:49.887 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: simpleSquare (1); status: COMPLETED; exit: -; error: -; workDir: /faststorage/project/mutationalscanning/Workspaces/chcharlton/kinetics/workflows/work/d5/6e280ead76530dc2f118e0831e0cd1]
+Dec-15 17:22:49.891 [main] DEBUG nextflow.Session - Session await > all processes finished
+Dec-15 17:22:49.986 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Dec-15 17:22:49.986 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Dec-15 17:22:49.991 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Dec-15 17:22:49.996 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=5; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=9ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=3; peakCpus=3; peakMemory=0; ]
+Dec-15 17:22:50.182 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Dec-15 17:22:50.196 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Dec-15 17:22:50.196 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
