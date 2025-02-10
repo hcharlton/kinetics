@@ -13,6 +13,7 @@ work/
 *.png
 *.gwf
 *.o
+*.out
 *.stderr 
 *.stdout
 *.log
