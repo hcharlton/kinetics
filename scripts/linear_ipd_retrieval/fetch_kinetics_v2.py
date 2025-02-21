@@ -1,15 +1,11 @@
 import os
 import polars as pl
 import pysam
-from tqdm import tqdm
 import logging
 import configparser
 
-
-
 ### load config ###
-
-config_path = 'test.ini'
+config_path = '~/mutationalscanning/Workspaces/chcharlton/kinetics/scripts/linear_ipd_retrieval/test.ini'
 
 def load_config(config_path):
     if not os.path.exists(config_path):
@@ -36,10 +32,11 @@ def load_config(config_path):
     
     return config 
 
-config = load_config(config_path)
+config = load_config(os.path.expanduser(config_path))
 
 bam_filepath = os.path.expanduser(config['Paths']['bam_filepath'])
 bed_filepath = os.path.expanduser(config['Paths']['bed_filepath']) 
+results_filepath = os.path.expanduser(config['Paths']['output_dir'])
 context = int(config['Constants']['context'])
 
 
@@ -106,26 +103,28 @@ def get_kinetic_data(row: tuple, header: list, bam: pysam.AlignmentFile, context
                 try:
                     ipd_fwd = list(read.get_tag(fwd_tag)[fwd_start_index:fwd_end_index])
                     ipd_rev = list(read.get_tag(rev_tag)[rev_start_index:rev_end_index])
+                    fn = read.get_tag('fn')
+                    rn = read.get_tag('rn')
                     base_pairs = list(read.query_sequence[fwd_start_index:fwd_end_index])
 
                     expected_length = 2 * context + 1
                     if not (len(ipd_fwd) == len(ipd_rev) == len(base_pairs) == expected_length):
                         logging.warning(f"Unexpected IPD/base length. Read: {read_name}, Expected: {expected_length}, "
                                         f"Got: fwd:{len(ipd_fwd)}, rev:{len(ipd_rev)}, bases:{len(base_pairs)}")
-                        return None, None, None
+                        return None, None, None, None, None
 
-                    return ipd_fwd, ipd_rev, base_pairs
+                    return ipd_fwd, ipd_rev, base_pairs, fn, rn
                 except KeyError as e:
                     logging.warning(f"Read {read_name} is missing tag {e}. Skipping.")
-                    return None, None, None
+                    return None, None, None, None, None
                 except IndexError as e:
                     logging.warning(f"Index out of range for read {read_name}: {e}. Skipping.")
-                    return None, None, None
+                    return None, None, None, None, None
     except ValueError as e:
         logging.error(f"Error during fetch (likely BAM index issue): {e}")
-        return None, None, None
+        return None, None, None, None, None
 
-    return None, None, None
+    return None, None, None, None, None
 
 
  
@@ -140,20 +139,10 @@ def process_kinetics(df: pl.DataFrame, bam_filepath: str, context: int) -> pl.Da
             # Prepare the data for apply.  Extract only necessary columns *before* the apply.
         cols = ['unique_id', 'contig','start', 'end', 'position_in_read', 'read_name']
         subset_df = df.select(cols)
-        # would be nice to make sure that the df is in contiguous memory...
-
-        # Use Polars' apply.  Pass the open 'bam' file and context.
-        #  The lambda function receives a *tuple* representing the row.
+        # map rows applies the get_kinetics data function to all the rows in the bed file
         results = subset_df.map_rows(lambda row: get_kinetic_data(row=row, header=cols, bam=bam, context=context))
         # Join with the original DataFrame based on row index.  Create index columns first.
         df = df.with_row_index('row_index')
-        # results_df = results_df.with_row_index('row_index')
-        # df = df.join(results_df, on='row_index').drop('row_index') #Drop the extra column
-
-
-    # except Exception as e:
-    #     logging.error(f"Error opening or processing BAM file: {e}")
-    #     raise
 
     return results
 
@@ -161,17 +150,10 @@ def process_kinetics(df: pl.DataFrame, bam_filepath: str, context: int) -> pl.Da
 
 def main():
     """Main function to load data, process kinetics, and print results."""
-    # try:
     df = load_bed_file(bed_filepath)
-    logging.info(f"Loaded BED file: {bed_filepath}")
-
     final_df = process_kinetics(df, bam_filepath, context)
-    logging.info("retrieval complete")
-    final_df.write_parquet("data/ob006_kinetics.parquet")
-
-    # except Exception as e:
-    #     logging.error(f"An error occurred: {e}
-
+    output_filepath = os.path.join(results_filepath, os.path.basename(bed_filepath).split("_")[0]) + '.parquet'
+    final_df.write_parquet(output_filepath)
 
 if __name__ == "__main__":
     main()
