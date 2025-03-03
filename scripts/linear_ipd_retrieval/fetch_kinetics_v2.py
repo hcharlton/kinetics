@@ -1,6 +1,7 @@
 import os
 import polars as pl
 import pysam
+from tqdm import tqdm
 import logging
 import configparser
 
@@ -79,11 +80,13 @@ def get_kinetic_data(row: tuple, header: list, bam: pysam.AlignmentFile, context
     ipd_rev: a list of IPD values for the reverse strand
     base_pairs: a list of base pairs centered on the mutation
     """
+    unique_id = row[header.index('unique_id')]
     contig = row[header.index('contig')]
     start = int(row[header.index('start')])
     end = int(row[header.index('end')])
     position_in_read = int(row[header.index('position_in_read')])
     read_name = row[header.index('read_name')]
+    null_data = None, None, None, None, None, None
 
     try:
         for read in bam.fetch(contig=contig, start=start, end=end):
@@ -111,36 +114,35 @@ def get_kinetic_data(row: tuple, header: list, bam: pysam.AlignmentFile, context
                     if not (len(ipd_fwd) == len(ipd_rev) == len(base_pairs) == expected_length):
                         logging.warning(f"Unexpected IPD/base length. Read: {read_name}, Expected: {expected_length}, "
                                         f"Got: fwd:{len(ipd_fwd)}, rev:{len(ipd_rev)}, bases:{len(base_pairs)}")
-                        return None, None, None, None, None
+                        return null_data
 
-                    return ipd_fwd, ipd_rev, base_pairs, fn, rn
+                    return unique_id, ipd_fwd, ipd_rev, base_pairs, fn, rn
                 except KeyError as e:
                     logging.warning(f"Read {read_name} is missing tag {e}. Skipping.")
-                    return None, None, None, None, None
+                    return null_data
                 except IndexError as e:
                     logging.warning(f"Index out of range for read {read_name}: {e}. Skipping.")
-                    return None, None, None, None, None
+                    return null_data
     except ValueError as e:
-        logging.error(f"Error during fetch (likely BAM index issue): {e}")
-        return None, None, None, None, None
+        logging.error(f"Error during bam.fetch (likely BAM index issue): {e}")
+        return null_data
 
-    return None, None, None, None, None
-
+    return null_data
 
  
 def process_kinetics(df: pl.DataFrame, bam_filepath: str, context: int) -> pl.DataFrame:
     """Retrieve and store the kinetics data for all reads in the DataFrame."""
-
     if not os.path.exists(bam_filepath):
         raise FileNotFoundError(f"BAM file not found: {bam_filepath}")
 
     # try:
     with pysam.AlignmentFile(bam_filepath, 'rb') as bam:
-            # Prepare the data for apply.  Extract only necessary columns *before* the apply.
+        # Prepare the data for apply.  Extract only necessary columns *before* the apply.
         cols = ['unique_id', 'contig','start', 'end', 'position_in_read', 'read_name']
         subset_df = df.select(cols)
-        # map rows applies the get_kinetics data function to all the rows in the bed file
+        # map rows applies the get_kinetics data function to all the r
         results = subset_df.map_rows(lambda row: get_kinetic_data(row=row, header=cols, bam=bam, context=context))
+        results.columns = ['unique_id', 'ipd_fwd', 'ipd_rev', 'base_pairs', 'fn', 'rn']
         # Join with the original DataFrame based on row index.  Create index columns first.
         df = df.with_row_index('row_index')
 
@@ -149,11 +151,18 @@ def process_kinetics(df: pl.DataFrame, bam_filepath: str, context: int) -> pl.Da
 
 
 def main():
-    """Main function to load data, process kinetics, and print results."""
+    # try:
     df = load_bed_file(bed_filepath)
+    logging.info(f"Loaded BED file: {bed_filepath}")
+
     final_df = process_kinetics(df, bam_filepath, context)
+    logging.info("retrieval complete")
     output_filepath = os.path.join(results_filepath, os.path.basename(bed_filepath).split("_")[0]) + '.parquet'
     final_df.write_parquet(output_filepath)
+
+    # except Exception as e:
+    #     logging.error(f"An error occurred: {e}
+
 
 if __name__ == "__main__":
     main()

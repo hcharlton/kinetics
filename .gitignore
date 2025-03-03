@@ -17,4 +17,5 @@ work/
 *.stderr 
 *.stdout
 *.log
+*.sam
 tutorials/
