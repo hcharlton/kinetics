@@ -17,32 +17,22 @@ This takes a BED file and pads the intervals. Since the BED file with the observ
 ### test
 `bedtools slop -i ~/mutationalscanning/Workspaces/chcharlton/kinetics/data/ob006_10_noheader.bed -g ob006_genome_index.txt -b 16 > ob006_10_noheader_padded.bed`
 ### actual
+`bedtools slop -i ~/mutationalscanning/Workspaces/chcharlton/kinetics/data/ob006_true_mutations_cleaned_noheader.bed -g ob006_genome_index.txt -b 16 > ob006_true_mutations_padded.bed`
 
 ## generate a complement of the padded BED
-
 ### recipe
 `bedtools complement -i padded_merged.bed -g genome.txt > complement.bed`
 ### test
-`bedtools complement -i ob006_10_noheader_padded.bed -g ob006_genome_index.txt > ob006_test_complement.bed`
+`bedtools complement -i ob006_10_noheader_padded.bed -g ob006_genome_index.txt > ob006_10_complement.bed`
 ### actual
-
+`bedtools complement -i ob006_true_mutations_padded.bed -g ob006_genome_index.txt > ob006_true_mutations_padded_complement.bed`
 ## gather context for kinetics 
 This includes ipd_fwd, ipd_rev, pw_fwd, pw_rev, fn, rn, 
 
-
-
-`python retrieve_null.py ob006_test_complement_head.bed ~/mutationalscanning/DerivedData/bam/HiFi/human/ob006/kinetics/ob006_kinetics_diploid.bam ~/mutationalscanning/DerivedData/fasta/HiFi/human/ob006/diploid_assembly/ob006_diploid.fa ./null_dist.ndjson`
-
+see retrieve_null_3.py for all contigs, or retrieve_null_2.py for just one contig
 
 
 
-
-
-
-
-
-m84108_240530_140750_s2/73663713/ccs
-m84108_240530_160720_s3/14616969/ccs
 
 
 

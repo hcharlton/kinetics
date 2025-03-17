@@ -2,6 +2,7 @@ data/
 plots/
 work/
 .nextflow/
+.ipynb_checkpoints/
 .nextflow.log.*
 *.ipynb
 *.logs
@@ -18,4 +19,6 @@ work/
 *.stdout
 *.log
 *.sam
+*.svg
+profile_output*
 tutorials/
