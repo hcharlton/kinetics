@@ -9,7 +9,7 @@ WINDOW_SIZE: int = 64
 CENTER_OFFSET: int = (WINDOW_SIZE // 2) - 1
 CENTER_SIZE: int = 3
 START_WINDOW: int = 2
-BATCH_SIZE: int = 100000
+BATCH_SIZE: int = 1000
 
 SCHEMA = {
     "contig": pl.Utf8,
@@ -46,12 +46,12 @@ SCHEMA = {
 @profile
 def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> Optional[pl.DataFrame]:
     try:
-        tags = {
+        tag_data = {
             "fn": read.get_tag("fn"),
             "rn": read.get_tag("rn"),
-            "sm": read.get_tag("sm"),
-            "sx": read.get_tag("sx"),
-            "qual": read.query_qualities,
+            "sm": list(read.get_tag("sm")),
+            "sx": list(read.get_tag("sx")),
+            "qual": list(read.query_qualities),
             "seq": read.query_sequence,
         }
         if read.is_reverse:
@@ -61,17 +61,17 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
             fwd_ipd_tag, rev_ipd_tag = "fi", "ri"
             fwd_pw_tag, rev_pw_tag = "fp", "rp"
         for tag in [fwd_ipd_tag, rev_ipd_tag, fwd_pw_tag, rev_pw_tag]:
-            tags[tag] = read.get_tag(tag)
+            tag_data[tag] = list(read.get_tag(tag))
         if read.is_reverse:
-            tags[rev_ipd_tag] = tags[rev_ipd_tag][::-1]
-            tags[rev_pw_tag] = tags[rev_pw_tag][::-1]
+            tag_data[rev_ipd_tag] = list(tag_data[rev_ipd_tag][::-1])
+            tag_data[rev_pw_tag] = list(tag_data[rev_pw_tag][::-1])
     except Exception as e:
         print(f"Error getting tags for {read.query_name}: {e}")
         return None
 
-    expected_len = len(tags["seq"])
+    expected_len = len(tag_data["seq"])
     required_tags = ["qual", "sm", "sx", fwd_ipd_tag, rev_ipd_tag, fwd_pw_tag, rev_pw_tag]
-    if any(len(tags[tag]) != expected_len for tag in required_tags):
+    if any(len(tag_data[tag]) != expected_len for tag in required_tags):
         # print(f"Inconsistent tag lengths in read {read.query_name}")
         return None
     if expected_len < window_size:
@@ -81,10 +81,10 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
     num_windows = expected_len // window_size
     rows: List[dict] = []
 
-    tags_fwd_ipd_tag = tags[fwd_ipd_tag]
-    tags_rev_ipd_tag = tags[rev_ipd_tag]
-    tags_fwd_pw_tag = tags[fwd_pw_tag]
-    tags_rev_pw_tag = tags[rev_pw_tag]
+    tags_fwd_ipd_tag = tag_data[fwd_ipd_tag]
+    tags_rev_ipd_tag = tag_data[rev_ipd_tag]
+    tags_fwd_pw_tag = tag_data[fwd_pw_tag]
+    tags_rev_pw_tag = tag_data[rev_pw_tag]
 
     for i in range(START_WINDOW, num_windows - START_WINDOW):
         win_start = i * window_size
@@ -97,11 +97,11 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
         if read_center >= len(ref_positions):
             continue
 
-        center_seq = tags["seq"][center_start:center_end]
+        center_seq = tag_data["seq"][center_start:center_end]
         if len(center_seq) != CENTER_SIZE:
             continue
 
-        window_seq = list(tags["seq"][win_start:win_end])
+        window_seq = list(tag_data["seq"][win_start:win_end])
         if len(window_seq) != window_size:
             continue
 
@@ -109,12 +109,12 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
             "contig": read.reference_name,
             "read_name": read.query_name,
             "read_is_reverse": read.is_reverse,
-            "fn": tags["fn"],
-            "rn": tags["rn"],
+            "fn": tag_data["fn"],
+            "rn": tag_data["rn"],
             "ref_center": ref_positions[read_center],
             "read_center": read_center,
             "center_seq": center_seq,
-            "center_qual": tags["qual"][center_start:center_end],
+            "center_qual": tag_data["qual"][center_start:center_end],
             "center_ipd_fwd_0": tags_fwd_ipd_tag[center_start],
             "center_ipd_fwd_1": tags_fwd_ipd_tag[center_start + 1],
             "center_ipd_fwd_2": tags_fwd_ipd_tag[center_start + 2],
@@ -127,10 +127,10 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
             "center_pw_rev_0": tags_rev_pw_tag[center_start],
             "center_pw_rev_1": tags_rev_pw_tag[center_start + 1],
             "center_pw_rev_2": tags_rev_pw_tag[center_start + 2],
-            "window_sm": tags["sm"][win_start:win_end],
-            "window_sx": tags["sx"][win_start:win_end],
+            "window_sm": tag_data["sm"][win_start:win_end],
+            "window_sx": tag_data["sx"][win_start:win_end],
             "window_seq": window_seq,
-            "window_qual": tags["qual"][win_start:win_end],
+            "window_qual": tag_data["qual"][win_start:win_end],
             "window_ipd_fwd": tags_fwd_ipd_tag[win_start:win_end],
             "window_ipd_rev": tags_rev_ipd_tag[win_start:win_end],
             "window_pw_fwd": tags_fwd_pw_tag[win_start:win_end],
@@ -146,7 +146,7 @@ def write_batch(rows, batch_counter: int, output_dir: str) -> None:
     output_parquet = os.path.join(output_dir, f"batch_{batch_counter:05d}.parquet")
     df.write_parquet(output_parquet) 
     print(f"Batch {batch_counter} written to {output_parquet}")
-
+@profile
 def main() -> None:
     bam_filepath = os.path.expanduser(
         "~/mutationalscanning/DerivedData/bam/HiFi/human/ob006/kinetics/ob006_kinetics_diploid.bam"
