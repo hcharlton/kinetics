@@ -54,17 +54,17 @@ def process_read(read: pysam.AlignedSegment, window_size: int = WINDOW_SIZE) -> 
             "qual": list(read.query_qualities),
             "seq": read.query_sequence,
         }
-        if read.is_reverse:
-            fwd_ipd_tag, rev_ipd_tag = "ri", "fi"
-            fwd_pw_tag, rev_pw_tag = "rp", "fp"
-        else:
-            fwd_ipd_tag, rev_ipd_tag = "fi", "ri"
-            fwd_pw_tag, rev_pw_tag = "fp", "rp"
+        # if read.is_reverse:
+        #     fwd_ipd_tag, rev_ipd_tag = "ri", "fi"
+        #     fwd_pw_tag, rev_pw_tag = "rp", "fp"
+        # else:
+        fwd_ipd_tag, rev_ipd_tag = "fi", "ri"
+        fwd_pw_tag, rev_pw_tag = "fp", "rp"
         for tag in [fwd_ipd_tag, rev_ipd_tag, fwd_pw_tag, rev_pw_tag]:
             tag_data[tag] = list(read.get_tag(tag))
         if read.is_reverse:
-            tag_data[rev_ipd_tag] = list(tag_data[rev_ipd_tag][::-1])
-            tag_data[rev_pw_tag] = list(tag_data[rev_pw_tag][::-1])
+            tag_data[rev_ipd_tag] = list(tag_data[rev_ipd_tag])[::-1]
+            tag_data[rev_pw_tag] = list(tag_data[rev_pw_tag])[::-1]
     except Exception as e:
         print(f"Error getting tags for {read.query_name}: {e}")
         return None
@@ -152,7 +152,9 @@ def main() -> None:
         "~/mutationalscanning/DerivedData/bam/HiFi/human/ob006/kinetics/ob006_kinetics_diploid.bam"
     )
     test_contig = "h1tg000002l"
-    output_dir = "./batch_test"
+    output_dir = os.path.expanduser(
+        "~/mutationalscanning/Workspaces/chcharlton/kinetics/null_dist/output/test1"
+        )
     os.makedirs(output_dir, exist_ok=True)
 
     batch_counter = 0
@@ -169,6 +171,7 @@ def main() -> None:
             read_counter += 1
             if read_counter >= BATCH_SIZE:
                 write_batch(current_batch, batch_counter, output_dir)
+                break #uncomment after testing
                 batch_counter += 1
                 read_counter = 0
                 current_batch = []
